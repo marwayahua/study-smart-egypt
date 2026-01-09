@@ -7,6 +7,13 @@ interface HeroSectionProps {
 }
 
 export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
+  const scrollToFeatures = () => {
+    const featuresSection = document.getElementById("features-section");
+    if (featuresSection) {
+      featuresSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Elements */}
@@ -43,7 +50,7 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
                 Start Learning Free
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
-              <Button variant="outline" size="xl">
+              <Button variant="outline" size="xl" onClick={scrollToFeatures}>
                 See How It Works
               </Button>
             </div>
@@ -101,10 +108,13 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
         </div>
 
         {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-muted-foreground animate-bounce-soft">
+        <button
+          onClick={scrollToFeatures}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-muted-foreground animate-bounce-soft cursor-pointer hover:text-primary transition-colors"
+        >
           <span className="text-sm">Scroll to explore</span>
           <ChevronDown className="w-5 h-5" />
-        </div>
+        </button>
       </div>
     </section>
   );

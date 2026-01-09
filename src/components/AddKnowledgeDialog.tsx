@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Plus, BookOpen, Sparkles } from "lucide-react";
 
-const subjects = [
+const defaultSubjects = [
   "Biology",
   "Chemistry", 
   "Physics",
@@ -27,17 +27,35 @@ export const AddKnowledgeDialog = ({ onAdd }: AddKnowledgeDialogProps) => {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [subject, setSubject] = useState("");
+  const [customSubject, setCustomSubject] = useState("");
+  const [showCustomInput, setShowCustomInput] = useState(false);
+
+  const handleSubjectClick = (s: string) => {
+    if (s === "Other") {
+      setShowCustomInput(true);
+      setSubject("");
+    } else {
+      setShowCustomInput(false);
+      setCustomSubject("");
+      setSubject(s);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (question && answer && subject) {
-      onAdd({ question, answer, subject });
+    const finalSubject = showCustomInput ? customSubject : subject;
+    if (question && answer && finalSubject) {
+      onAdd({ question, answer, subject: finalSubject });
       setQuestion("");
       setAnswer("");
       setSubject("");
+      setCustomSubject("");
+      setShowCustomInput(false);
       setOpen(false);
     }
   };
+
+  const isValid = question && answer && (showCustomInput ? customSubject : subject);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -59,13 +77,13 @@ export const AddKnowledgeDialog = ({ onAdd }: AddKnowledgeDialogProps) => {
           <div className="space-y-2">
             <Label className="text-sm font-medium">Subject</Label>
             <div className="flex flex-wrap gap-2">
-              {subjects.map((s) => (
+              {defaultSubjects.map((s) => (
                 <button
                   key={s}
                   type="button"
-                  onClick={() => setSubject(s)}
+                  onClick={() => handleSubjectClick(s)}
                   className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
-                    subject === s
+                    (s === "Other" && showCustomInput) || (!showCustomInput && subject === s)
                       ? "bg-primary text-primary-foreground"
                       : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
                   }`}
@@ -74,6 +92,17 @@ export const AddKnowledgeDialog = ({ onAdd }: AddKnowledgeDialogProps) => {
                 </button>
               ))}
             </div>
+            
+            {/* Custom Subject Input */}
+            {showCustomInput && (
+              <Input
+                placeholder="Enter your custom subject..."
+                value={customSubject}
+                onChange={(e) => setCustomSubject(e.target.value)}
+                className="mt-2"
+                autoFocus
+              />
+            )}
           </div>
 
           {/* Question */}
@@ -109,7 +138,7 @@ export const AddKnowledgeDialog = ({ onAdd }: AddKnowledgeDialogProps) => {
             <Button type="button" variant="secondary" className="flex-1" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit" variant="hero" className="flex-1" disabled={!question || !answer || !subject}>
+            <Button type="submit" variant="hero" className="flex-1" disabled={!isValid}>
               <BookOpen className="w-4 h-4" />
               Save Card
             </Button>
