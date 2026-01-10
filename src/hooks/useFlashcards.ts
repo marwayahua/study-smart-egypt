@@ -70,7 +70,10 @@ export const useFlashcards = () => {
   };
 
   const addMultipleCards = async (cardsToAdd: { question: string; answer: string; subject: string }[]) => {
-    if (!user || cardsToAdd.length === 0) return [];
+    if (!user) {
+      throw new Error("Please sign in to save flashcards.");
+    }
+    if (cardsToAdd.length === 0) return [];
 
     try {
       const { data, error } = await supabase
@@ -90,7 +93,7 @@ export const useFlashcards = () => {
       return data || [];
     } catch (error) {
       console.error("Error adding flashcards:", error);
-      return [];
+      throw error;
     }
   };
 
