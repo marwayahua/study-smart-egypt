@@ -110,26 +110,39 @@ export const AIFlashcardGenerator = ({ onCardsAdded }: AIFlashcardGeneratorProps
     }
 
     setSaving(true);
-    const result = await addMultipleCards(
-      selectedCards.map((card) => ({
-        question: card.question,
-        answer: card.answer,
-        subject,
-      }))
-    );
-    setSaving(false);
+    try {
+      const result = await addMultipleCards(
+        selectedCards.map((card) => ({
+          question: card.question,
+          answer: card.answer,
+          subject,
+        }))
+      );
 
-    if (result.length > 0) {
+      if (result.length === 0) {
+        throw new Error("No cards were saved. Please try again.");
+      }
+
       toast({
         title: "Cards Saved! 🎉",
         description: `${result.length} flashcards added to your library.`,
       });
+
       setOpen(false);
       setTopic("");
       setSubject("");
       setGrade("");
       setGeneratedCards([]);
       onCardsAdded?.();
+    } catch (error) {
+      console.error("Error saving generated flashcards:", error);
+      toast({
+        title: "Save Failed",
+        description: error instanceof Error ? error.message : "Failed to save flashcards",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
     }
   };
 

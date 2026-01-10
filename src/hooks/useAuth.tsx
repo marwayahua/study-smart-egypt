@@ -19,8 +19,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+
+    // Prevent duplicated token-refresh loops (can happen with React StrictMode double-mount in dev)
+    supabase.auth.stopAutoRefresh();
+    supabase.auth.startAutoRefresh();
+
     // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!isMounted) return;
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -28,12 +37,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // Then get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!isMounted) return;
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+      supabase.auth.stopAutoRefresh();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, displayName: string) => {
