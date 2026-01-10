@@ -22,7 +22,7 @@ interface DashboardProps {
 
 export const Dashboard = ({ onBack, onAuthClick }: DashboardProps) => {
   const { user } = useAuth();
-  const { cards, addCard, updateCardAfterReview, getDueCards, loading: cardsLoading } = useFlashcards();
+  const { cards, addCard, updateCardAfterReview, getDueCards, loading: cardsLoading, refetch: refetchCards } = useFlashcards();
   const { stats, updateStatsAfterReview, getRetentionRate } = useUserStats();
   const { getUpcomingExams, getIntensiveReviewMultiplier } = useExamDates();
   
@@ -175,7 +175,7 @@ export const Dashboard = ({ onBack, onAuthClick }: DashboardProps) => {
             </div>
             <div className="flex flex-wrap gap-2">
               <ExamCalendarDialog />
-              <AIFlashcardGenerator />
+              <AIFlashcardGenerator onCardsAdded={refetchCards} />
               <AddKnowledgeDialog onAdd={handleAddCard} />
             </div>
           </div>

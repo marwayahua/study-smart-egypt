@@ -26,7 +26,11 @@ interface GeneratedCard {
   selected: boolean;
 }
 
-export const AIFlashcardGenerator = () => {
+interface AIFlashcardGeneratorProps {
+  onCardsAdded?: () => void;
+}
+
+export const AIFlashcardGenerator = ({ onCardsAdded }: AIFlashcardGeneratorProps) => {
   const [open, setOpen] = useState(false);
   const [topic, setTopic] = useState("");
   const [subject, setSubject] = useState("");
@@ -125,6 +129,7 @@ export const AIFlashcardGenerator = () => {
       setSubject("");
       setGrade("");
       setGeneratedCards([]);
+      onCardsAdded?.();
     }
   };
 
