@@ -2,14 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, AlertCircle, HelpCircle, XCircle, RotateCcw } from "lucide-react";
-
-interface Flashcard {
-  id: string;
-  question: string;
-  answer: string;
-  subject: string;
-  nextReview: Date;
-}
+import { Flashcard } from "@/hooks/useFlashcards";
 
 interface FlashcardReviewProps {
   card: Flashcard;
