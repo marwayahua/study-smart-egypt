@@ -54,10 +54,17 @@ export const ProfileSheet = ({ children }: ProfileSheetProps) => {
     if (!user) return;
     setSaving(true);
     try {
+      // Use upsert to handle both insert and update cases
       const { error } = await supabase
         .from("profiles")
-        .update({ display_name: displayName, grade_level: gradeLevel })
-        .eq("user_id", user.id);
+        .upsert({ 
+          user_id: user.id, 
+          display_name: displayName, 
+          grade_level: gradeLevel,
+          updated_at: new Date().toISOString()
+        }, { 
+          onConflict: 'user_id' 
+        });
 
       if (error) throw error;
       toast({
@@ -65,6 +72,7 @@ export const ProfileSheet = ({ children }: ProfileSheetProps) => {
         description: "Your changes have been saved.",
       });
     } catch (error) {
+      console.error("Profile save error:", error);
       toast({
         title: "Error",
         description: "Failed to update profile",
