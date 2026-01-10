@@ -7,11 +7,13 @@ import { AIFlashcardGenerator } from "@/components/AIFlashcardGenerator";
 import { ExamCalendarDialog } from "@/components/ExamCalendarDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Play, BookOpen, Trophy, Clock, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Play, BookOpen, Trophy, Clock, AlertTriangle, PenLine, Eye } from "lucide-react";
 import { useFlashcards } from "@/hooks/useFlashcards";
 import { useUserStats } from "@/hooks/useUserStats";
 import { useExamDates } from "@/hooks/useExamDates";
 import { useAuth } from "@/hooks/useAuth";
+
+type ReviewMode = "show" | "write";
 
 interface DashboardProps {
   onBack: () => void;
@@ -25,6 +27,8 @@ export const Dashboard = ({ onBack, onAuthClick }: DashboardProps) => {
   const { getUpcomingExams, getIntensiveReviewMultiplier } = useExamDates();
   
   const [isReviewing, setIsReviewing] = useState(false);
+  const [showModeSelection, setShowModeSelection] = useState(false);
+  const [reviewMode, setReviewMode] = useState<ReviewMode>("show");
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
 
   const dueCards = getDueCards();
@@ -52,6 +56,74 @@ export const Dashboard = ({ onBack, onAuthClick }: DashboardProps) => {
     }
   };
 
+  // Mode selection screen
+  if (showModeSelection && dueCards.length > 0) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar streak={streak} onAuthClick={onAuthClick} />
+        <main className="pt-24 pb-12 px-4">
+          <div className="container mx-auto max-w-2xl">
+            <Button variant="ghost" onClick={() => setShowModeSelection(false)} className="mb-6 gap-2">
+              <ArrowLeft className="w-4 h-4" />
+              Back
+            </Button>
+            
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold mb-2">Choose Review Mode</h2>
+              <p className="text-muted-foreground">How would you like to practice today?</p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-4">
+              <Card 
+                variant="interactive" 
+                className="cursor-pointer p-6 text-center hover:border-primary transition-colors"
+                onClick={() => {
+                  setReviewMode("write");
+                  setShowModeSelection(false);
+                  setIsReviewing(true);
+                }}
+              >
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                    <PenLine className="w-8 h-8 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold mb-1">Write Answer</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Type your answer first, then compare with the correct one. Best for active recall practice.
+                    </p>
+                  </div>
+                </div>
+              </Card>
+              
+              <Card 
+                variant="interactive" 
+                className="cursor-pointer p-6 text-center hover:border-primary transition-colors"
+                onClick={() => {
+                  setReviewMode("show");
+                  setShowModeSelection(false);
+                  setIsReviewing(true);
+                }}
+              >
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center">
+                    <Eye className="w-8 h-8 text-accent" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold mb-1">Show Answer</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Tap to reveal the answer, then rate your recall. Classic flashcard experience.
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   if (isReviewing && dueCards.length > 0) {
     return (
       <div className="min-h-screen bg-background">
@@ -64,9 +136,14 @@ export const Dashboard = ({ onBack, onAuthClick }: DashboardProps) => {
                   <ArrowLeft className="w-4 h-4" />
                   Exit Review
                 </Button>
-                <span className="text-sm text-muted-foreground">
-                  Card {currentCardIndex + 1} of {dueCards.length}
-                </span>
+                <div className="flex items-center gap-3">
+                  <span className="text-xs px-2 py-1 rounded-full bg-secondary">
+                    {reviewMode === "write" ? "Write Mode" : "Show Mode"}
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    Card {currentCardIndex + 1} of {dueCards.length}
+                  </span>
+                </div>
               </div>
               <div className="h-2 bg-secondary rounded-full overflow-hidden">
                 <div
@@ -75,7 +152,7 @@ export const Dashboard = ({ onBack, onAuthClick }: DashboardProps) => {
                 />
               </div>
             </div>
-            <FlashcardReview card={dueCards[currentCardIndex]} onRate={handleRate} />
+            <FlashcardReview card={dueCards[currentCardIndex]} onRate={handleRate} mode={reviewMode} />
           </div>
         </main>
       </div>
@@ -131,7 +208,7 @@ export const Dashboard = ({ onBack, onAuthClick }: DashboardProps) => {
                 <p className="text-muted-foreground">
                   You have <span className="font-bold text-foreground">{dueCards.length} cards</span> ready for review.
                 </p>
-                <Button variant="hero" className="w-full" onClick={() => setIsReviewing(true)} disabled={dueCards.length === 0 || !user}>
+                <Button variant="hero" className="w-full" onClick={() => setShowModeSelection(true)} disabled={dueCards.length === 0 || !user}>
                   <Play className="w-4 h-4" />
                   {user ? "Start Review Session" : "Sign in to Review"}
                 </Button>
