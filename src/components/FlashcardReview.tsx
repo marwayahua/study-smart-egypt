@@ -1,20 +1,49 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, AlertCircle, HelpCircle, XCircle, RotateCcw } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { CheckCircle2, AlertCircle, HelpCircle, XCircle, RotateCcw, Send } from "lucide-react";
 import { Flashcard } from "@/hooks/useFlashcards";
 
 interface FlashcardReviewProps {
   card: Flashcard;
   onRate: (rating: "easy" | "confusing" | "almost" | "forgot") => void;
+  mode: "show" | "write";
 }
 
-export const FlashcardReview = ({ card, onRate }: FlashcardReviewProps) => {
+export const FlashcardReview = ({ card, onRate, mode }: FlashcardReviewProps) => {
   const [isFlipped, setIsFlipped] = useState(false);
+  const [userAnswer, setUserAnswer] = useState("");
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+
+  // Reset state when card changes
+  useEffect(() => {
+    setIsFlipped(false);
+    setUserAnswer("");
+    setHasSubmitted(false);
+  }, [card.id]);
 
   const handleFlip = () => {
-    setIsFlipped(!isFlipped);
+    if (mode === "show") {
+      setIsFlipped(!isFlipped);
+    }
   };
+
+  const handleSubmitAnswer = () => {
+    if (userAnswer.trim()) {
+      setHasSubmitted(true);
+      setIsFlipped(true);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmitAnswer();
+    }
+  };
+
+  const showRatingButtons = mode === "show" ? isFlipped : hasSubmitted;
 
   return (
     <div className="w-full max-w-2xl mx-auto">
@@ -27,7 +56,7 @@ export const FlashcardReview = ({ card, onRate }: FlashcardReviewProps) => {
 
       {/* Flashcard */}
       <div
-        className="relative w-full h-80 cursor-pointer perspective-1000"
+        className={`relative w-full h-80 ${mode === "show" ? "cursor-pointer" : ""} perspective-1000`}
         onClick={handleFlip}
         style={{ perspective: "1000px" }}
       >
@@ -48,7 +77,9 @@ export const FlashcardReview = ({ card, onRate }: FlashcardReviewProps) => {
           >
             <p className="text-xs uppercase tracking-wider text-muted-foreground mb-4">Question</p>
             <p className="text-2xl font-semibold text-center leading-relaxed">{card.question}</p>
-            <p className="text-sm text-muted-foreground mt-6">Tap to reveal answer</p>
+            {mode === "show" && (
+              <p className="text-sm text-muted-foreground mt-6">Tap to reveal answer</p>
+            )}
           </Card>
 
           {/* Back - Answer */}
@@ -60,14 +91,43 @@ export const FlashcardReview = ({ card, onRate }: FlashcardReviewProps) => {
               transform: "rotateY(180deg)",
             }}
           >
-            <p className="text-xs uppercase tracking-wider text-primary mb-4">Answer</p>
+            <p className="text-xs uppercase tracking-wider text-primary mb-4">Correct Answer</p>
             <p className="text-2xl font-semibold text-center leading-relaxed">{card.answer}</p>
+            {mode === "write" && hasSubmitted && (
+              <div className="mt-6 w-full max-w-md">
+                <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Your Answer</p>
+                <div className="p-3 rounded-lg bg-secondary/50 text-center">
+                  <p className="text-lg">{userAnswer}</p>
+                </div>
+              </div>
+            )}
           </Card>
         </div>
       </div>
 
+      {/* Write Answer Input (only in write mode before submission) */}
+      {mode === "write" && !hasSubmitted && (
+        <div className="mt-6 space-y-3 animate-fade-in">
+          <p className="text-center text-sm text-muted-foreground">Type your answer below</p>
+          <div className="flex gap-2">
+            <Input
+              value={userAnswer}
+              onChange={(e) => setUserAnswer(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Write your answer..."
+              className="flex-1"
+              autoFocus
+            />
+            <Button onClick={handleSubmitAnswer} disabled={!userAnswer.trim()}>
+              <Send className="w-4 h-4 mr-2" />
+              Submit
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Rating Buttons */}
-      {isFlipped && (
+      {showRatingButtons && (
         <div className="mt-8 animate-slide-up">
           <p className="text-center text-sm text-muted-foreground mb-4">How well did you remember?</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -112,7 +172,7 @@ export const FlashcardReview = ({ card, onRate }: FlashcardReviewProps) => {
       )}
 
       {/* Flip Again Button */}
-      {isFlipped && (
+      {isFlipped && mode === "show" && (
         <div className="mt-4 flex justify-center">
           <Button variant="ghost" onClick={handleFlip} className="text-muted-foreground">
             <RotateCcw className="w-4 h-4 mr-2" />
