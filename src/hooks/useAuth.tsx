@@ -24,6 +24,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // which would overwrite state with a stale (often null) session.
     let authEventHandled = false;
 
+    // In some environments (and during React dev double-mount), the auth client can
+    // accidentally end up with multiple token-refresh timers. Reset to a single loop.
+    supabase.auth.stopAutoRefresh();
+    supabase.auth.startAutoRefresh();
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
@@ -50,6 +55,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => {
       isMounted = false;
       subscription.unsubscribe();
+      supabase.auth.stopAutoRefresh();
     };
   }, []);
 
