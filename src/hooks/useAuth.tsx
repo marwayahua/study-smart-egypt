@@ -20,24 +20,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     let isMounted = true;
+    // Guard against a race where getSession() resolves after a SIGNED_IN event,
+    // which would overwrite state with a stale (often null) session.
+    let authEventHandled = false;
 
-    // Prevent duplicated token-refresh loops (can happen with React StrictMode double-mount in dev)
-    supabase.auth.stopAutoRefresh();
-    supabase.auth.startAutoRefresh();
-
-    // Set up auth state listener FIRST
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (!isMounted) return;
+      authEventHandled = true;
+
+      // Debug aid for the "auto logout" reports
+      console.log("[auth] event=", event, "user=", session?.user?.id ?? null);
+
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
     });
 
-    // Then get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!isMounted) return;
+      if (authEventHandled) return;
+
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -46,7 +50,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => {
       isMounted = false;
       subscription.unsubscribe();
-      supabase.auth.stopAutoRefresh();
     };
   }, []);
 
