@@ -3,29 +3,21 @@ import { Navbar } from "@/components/Navbar";
 import { HeroSection } from "@/components/HeroSection";
 import { FeaturesSection } from "@/components/FeaturesSection";
 import { Dashboard } from "@/components/Dashboard";
-import { AuthDialog } from "@/components/AuthDialog";
-import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
   const [showDashboard, setShowDashboard] = useState(false);
-  const [authOpen, setAuthOpen] = useState(false);
-  const { user } = useAuth();
 
   const handleGetStarted = () => {
-    if (user) {
-      setShowDashboard(true);
-    } else {
-      setAuthOpen(true);
-    }
+    setShowDashboard(true);
   };
 
   if (showDashboard) {
-    return <Dashboard onBack={() => setShowDashboard(false)} onAuthClick={() => setAuthOpen(true)} />;
+    return <Dashboard onBack={() => setShowDashboard(false)} />;
   }
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar onAuthClick={() => setAuthOpen(true)} />
+      <Navbar />
       <main>
         <HeroSection onGetStarted={handleGetStarted} />
         <FeaturesSection />
@@ -38,8 +30,6 @@ const Index = () => {
           </div>
         </footer>
       </main>
-      
-      <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
     </div>
   );
 };

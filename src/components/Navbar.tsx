@@ -1,16 +1,10 @@
-import { Brain, User, Flame, LogIn } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/useAuth";
-import { ProfileSheet } from "@/components/ProfileSheet";
+import { Brain, Flame } from "lucide-react";
 
 interface NavbarProps {
   streak?: number;
-  onAuthClick?: () => void;
 }
 
-export const Navbar = ({ streak = 0, onAuthClick }: NavbarProps) => {
-  const { user } = useAuth();
-
+export const Navbar = ({ streak = 0 }: NavbarProps) => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/50">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
@@ -31,20 +25,6 @@ export const Navbar = ({ streak = 0, onAuthClick }: NavbarProps) => {
               <Flame className="w-4 h-4" />
               <span className="font-bold text-sm">{streak} day streak</span>
             </div>
-          )}
-          
-          {user ? (
-            <ProfileSheet>
-              <Button variant="ghost" size="sm">
-                <User className="w-4 h-4" />
-                <span className="hidden sm:inline">Profile</span>
-              </Button>
-            </ProfileSheet>
-          ) : (
-            <Button variant="ghost" size="sm" onClick={onAuthClick}>
-              <LogIn className="w-4 h-4" />
-              <span className="hidden sm:inline">Sign In</span>
-            </Button>
           )}
         </div>
       </div>
