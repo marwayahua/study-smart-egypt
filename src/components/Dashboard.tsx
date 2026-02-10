@@ -11,17 +11,14 @@ import { ArrowLeft, Play, BookOpen, Trophy, Clock, AlertTriangle, PenLine, Eye }
 import { useFlashcards } from "@/hooks/useFlashcards";
 import { useUserStats } from "@/hooks/useUserStats";
 import { useExamDates } from "@/hooks/useExamDates";
-import { useAuth } from "@/hooks/useAuth";
 
 type ReviewMode = "show" | "write";
 
 interface DashboardProps {
   onBack: () => void;
-  onAuthClick: () => void;
 }
 
-export const Dashboard = ({ onBack, onAuthClick }: DashboardProps) => {
-  const { user } = useAuth();
+export const Dashboard = ({ onBack }: DashboardProps) => {
   const { cards, addCard, updateCardAfterReview, getDueCards, loading: cardsLoading, refetch: refetchCards } = useFlashcards();
   const { stats, updateStatsAfterReview, getRetentionRate } = useUserStats();
   const { getUpcomingExams, getIntensiveReviewMultiplier } = useExamDates();
@@ -60,7 +57,7 @@ export const Dashboard = ({ onBack, onAuthClick }: DashboardProps) => {
   if (showModeSelection && dueCards.length > 0) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar streak={streak} onAuthClick={onAuthClick} />
+        <Navbar streak={streak} />
         <main className="pt-24 pb-12 px-4">
           <div className="container mx-auto max-w-2xl">
             <Button variant="ghost" onClick={() => setShowModeSelection(false)} className="mb-6 gap-2">
@@ -127,7 +124,7 @@ export const Dashboard = ({ onBack, onAuthClick }: DashboardProps) => {
   if (isReviewing && dueCards.length > 0) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar streak={streak} onAuthClick={onAuthClick} />
+        <Navbar streak={streak} />
         <main className="pt-24 pb-12 px-4">
           <div className="container mx-auto max-w-4xl">
             <div className="mb-8">
@@ -161,7 +158,7 @@ export const Dashboard = ({ onBack, onAuthClick }: DashboardProps) => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar streak={streak} onAuthClick={onAuthClick} />
+      <Navbar streak={streak} />
       <main className="pt-24 pb-12 px-4">
         <div className="container mx-auto max-w-6xl space-y-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -208,9 +205,9 @@ export const Dashboard = ({ onBack, onAuthClick }: DashboardProps) => {
                 <p className="text-muted-foreground">
                   You have <span className="font-bold text-foreground">{dueCards.length} cards</span> ready for review.
                 </p>
-                <Button variant="hero" className="w-full" onClick={() => setShowModeSelection(true)} disabled={dueCards.length === 0 || !user}>
+                <Button variant="hero" className="w-full" onClick={() => setShowModeSelection(true)} disabled={dueCards.length === 0}>
                   <Play className="w-4 h-4" />
-                  {user ? "Start Review Session" : "Sign in to Review"}
+                  Start Review Session
                 </Button>
               </CardContent>
             </Card>
@@ -254,7 +251,7 @@ export const Dashboard = ({ onBack, onAuthClick }: DashboardProps) => {
                 <div className="text-center py-12 text-muted-foreground">
                   <BookOpen className="w-12 h-12 mx-auto mb-4 opacity-50" />
                   <p className="text-lg font-medium">No cards yet</p>
-                  <p className="text-sm">{user ? "Add your first knowledge card to get started!" : "Sign in to add cards"}</p>
+                  <p className="text-sm">Add your first knowledge card to get started!</p>
                 </div>
               ) : (
                 <div className="grid gap-3">
