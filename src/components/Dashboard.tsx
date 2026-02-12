@@ -11,6 +11,7 @@ import { ArrowLeft, Play, BookOpen, Trophy, Clock, AlertTriangle, PenLine, Eye }
 import { useFlashcards } from "@/hooks/useFlashcards";
 import { useUserStats } from "@/hooks/useUserStats";
 import { useExamDates } from "@/hooks/useExamDates";
+import { useAuth } from "@/hooks/useAuth";
 
 type ReviewMode = "show" | "write";
 
