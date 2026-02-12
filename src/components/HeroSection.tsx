@@ -1,12 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Brain, Zap, Calendar, TrendingUp, Clock, Sparkles, ArrowRight, ChevronDown } from "lucide-react";
+import { AuthDialog } from "@/components/AuthDialog";
 import heroIllustration from "@/assets/hero-illustration.png";
 
-interface HeroSectionProps {
-  onGetStarted: () => void;
-}
-
-export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
+export const HeroSection = () => {
   const scrollToFeatures = () => {
     const featuresSection = document.getElementById("features-section");
     if (featuresSection) {
@@ -46,10 +43,15 @@ export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
-              <Button variant="hero" size="xl" onClick={onGetStarted} className="group">
-                Start Learning Free
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
+              <AuthDialog
+                defaultMode="signup"
+                trigger={
+                  <Button variant="hero" size="xl" className="group">
+                    Start Learning Free
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                }
+              />
               <Button variant="outline" size="xl" onClick={scrollToFeatures}>
                 See How It Works
               </Button>

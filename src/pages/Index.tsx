@@ -1,25 +1,26 @@
-import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { HeroSection } from "@/components/HeroSection";
 import { FeaturesSection } from "@/components/FeaturesSection";
-import { Dashboard } from "@/components/Dashboard";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 const Index = () => {
-  const [showDashboard, setShowDashboard] = useState(false);
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
 
-  const handleGetStarted = () => {
-    setShowDashboard(true);
-  };
-
-  if (showDashboard) {
-    return <Dashboard onBack={() => setShowDashboard(false)} />;
-  }
+  // If logged in, redirect to dashboard
+  useEffect(() => {
+    if (!loading && user) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [user, loading, navigate]);
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       <main>
-        <HeroSection onGetStarted={handleGetStarted} />
+        <HeroSection />
         <FeaturesSection />
         
         <footer className="py-12 border-t border-border">
