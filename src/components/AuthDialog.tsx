@@ -1,170 +1,145 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
-import { toast } from "@/components/ui/sonner";
-import { LogIn, UserPlus, Loader2, Mail, Lock, User } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+import { Brain, Loader2 } from "lucide-react";
 
 interface AuthDialogProps {
-  trigger?: React.ReactNode;
-  defaultMode?: "login" | "signup";
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export const AuthDialog = ({ trigger, defaultMode = "login" }: AuthDialogProps) => {
-  const [open, setOpen] = useState(false);
-  const [mode, setMode] = useState<"login" | "signup">(defaultMode);
+export const AuthDialog = ({ open, onOpenChange }: AuthDialogProps) => {
+  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
   const { signIn, signUp } = useAuth();
-  const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
-      toast.error("يرجى ملء جميع الحقول المطلوبة");
-      return;
-    }
-
     setLoading(true);
 
-    if (mode === "login") {
-      const { error } = await signIn(email, password);
-      if (error) {
-        toast.error(error);
+    try {
+      if (isLogin) {
+        const { error } = await signIn(email, password);
+        if (error) throw error;
+        toast({
+          title: "Welcome back! 👋",
+          description: "Successfully signed in.",
+        });
       } else {
-        toast.success("تم تسجيل الدخول بنجاح! 🎉");
-        setOpen(false);
-        resetForm();
-        navigate("/dashboard");
+        if (!displayName.trim()) {
+          throw new Error("Please enter your name");
+        }
+        const { error } = await signUp(email, password, displayName);
+        if (error) throw error;
+        toast({
+          title: "Welcome to Recall Memento! 🎉",
+          description: "Your account has been created.",
+        });
       }
-    } else {
-      if (password.length < 6) {
-        toast.error("كلمة المرور يجب أن تكون 6 أحرف على الأقل");
-        setLoading(false);
-        return;
-      }
-      const { error } = await signUp(email, password, displayName);
-      if (error) {
-        toast.error(error);
-      } else {
-        toast.success("تم إنشاء الحساب بنجاح! تحقق من بريدك الإلكتروني لتأكيد الحساب. ✉️");
-        setOpen(false);
-        resetForm();
-      }
+      onOpenChange(false);
+      setEmail("");
+      setPassword("");
+      setDisplayName("");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Something went wrong",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
-  };
-
-  const resetForm = () => {
-    setEmail("");
-    setPassword("");
-    setDisplayName("");
   };
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) resetForm(); }}>
-      <DialogTrigger asChild>
-        {trigger || (
-          <Button variant="hero" size="sm" className="gap-2">
-            <LogIn className="w-4 h-4" />
-            تسجيل الدخول
-          </Button>
-        )}
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-xl text-center">
-            {mode === "login" ? "تسجيل الدخول" : "إنشاء حساب جديد"}
+          <DialogTitle className="flex items-center gap-2 text-xl">
+            <div className="w-10 h-10 rounded-xl hero-gradient flex items-center justify-center">
+              <Brain className="w-6 h-6 text-primary-foreground" />
+            </div>
+            {isLogin ? "Welcome Back" : "Join Recall Memento"}
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-          {mode === "signup" && (
+          {!isLogin && (
             <div className="space-y-2">
-              <Label htmlFor="displayName" className="flex items-center gap-2">
-                <User className="w-4 h-4" />
-                الاسم
-              </Label>
+              <Label htmlFor="displayName">Your Name</Label>
               <Input
                 id="displayName"
-                placeholder="أدخل اسمك"
+                placeholder="Ahmed Mohamed"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                dir="rtl"
+                disabled={loading}
               />
             </div>
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="email" className="flex items-center gap-2">
-              <Mail className="w-4 h-4" />
-              البريد الإلكتروني
-            </Label>
+            <Label htmlFor="email">Email</Label>
             <Input
               id="email"
               type="email"
-              placeholder="example@email.com"
+              placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
               required
-              dir="ltr"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password" className="flex items-center gap-2">
-              <Lock className="w-4 h-4" />
-              كلمة المرور
-            </Label>
+            <Label htmlFor="password">Password</Label>
             <Input
               id="password"
               type="password"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
               required
               minLength={6}
-              dir="ltr"
             />
           </div>
 
           <Button type="submit" variant="hero" className="w-full" disabled={loading}>
-            {loading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : mode === "login" ? (
-              <>
-                <LogIn className="w-4 h-4" />
-                دخول
-              </>
-            ) : (
-              <>
-                <UserPlus className="w-4 h-4" />
-                إنشاء حساب
-              </>
-            )}
+            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+            {isLogin ? "Sign In" : "Create Account"}
           </Button>
 
           <div className="text-center text-sm text-muted-foreground">
-            {mode === "login" ? (
-              <p>
-                ليس لديك حساب؟{" "}
-                <button type="button" className="text-primary font-semibold hover:underline" onClick={() => setMode("signup")}>
-                  سجّل الآن
+            {isLogin ? (
+              <>
+                Don't have an account?{" "}
+                <button
+                  type="button"
+                  className="text-primary hover:underline font-medium"
+                  onClick={() => setIsLogin(false)}
+                >
+                  Sign up
                 </button>
-              </p>
+              </>
             ) : (
-              <p>
-                لديك حساب بالفعل؟{" "}
-                <button type="button" className="text-primary font-semibold hover:underline" onClick={() => setMode("login")}>
-                  سجّل دخولك
+              <>
+                Already have an account?{" "}
+                <button
+                  type="button"
+                  className="text-primary hover:underline font-medium"
+                  onClick={() => setIsLogin(true)}
+                >
+                  Sign in
                 </button>
-              </p>
+              </>
             )}
           </div>
         </form>

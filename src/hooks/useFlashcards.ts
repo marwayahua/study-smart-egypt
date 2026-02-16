@@ -106,12 +106,14 @@ export const useFlashcards = () => {
     const card = cards.find((c) => c.id === cardId);
     if (!card) return;
 
+    // SM-2 Algorithm implementation
     let { ease_factor, interval_days, repetitions } = card;
     
     const qualityMap = { easy: 5, confusing: 3, almost: 2, forgot: 0 };
     const quality = qualityMap[rating];
 
     if (quality < 3) {
+      // Reset on poor recall
       repetitions = 0;
       interval_days = 1;
     } else {
@@ -125,6 +127,7 @@ export const useFlashcards = () => {
       }
     }
 
+    // Update ease factor
     ease_factor = Math.max(
       1.3,
       ease_factor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02))
@@ -134,6 +137,7 @@ export const useFlashcards = () => {
     nextReview.setDate(nextReview.getDate() + interval_days);
 
     try {
+      // Update flashcard
       const { error: cardError } = await supabase
         .from("flashcards")
         .update({
@@ -146,12 +150,14 @@ export const useFlashcards = () => {
 
       if (cardError) throw cardError;
 
+      // Record review history
       await supabase.from("review_history").insert({
         user_id: user.id,
         flashcard_id: cardId,
         rating,
       });
 
+      // Update local state
       setCards((prev) =>
         prev.map((c) =>
           c.id === cardId

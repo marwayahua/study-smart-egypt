@@ -1,4 +1,4 @@
-import { Brain, Flame, Target, TrendingUp } from "lucide-react";
+import { Brain, Flame, Target, Clock, TrendingUp, Zap } from "lucide-react";
 
 interface StatCardProps {
   icon: React.ReactNode;
@@ -79,3 +79,19 @@ export const StatsGrid = ({ streak, todayCards, totalCards, retention }: StatsGr
     </div>
   );
 };
+
+interface QuickStatProps {
+  icon: React.ReactNode;
+  value: string | number;
+  label: string;
+}
+
+export const QuickStat = ({ icon, value, label }: QuickStatProps) => (
+  <div className="flex items-center gap-2">
+    <div className="text-primary">{icon}</div>
+    <div>
+      <span className="font-bold text-lg">{value}</span>
+      <span className="text-muted-foreground text-sm ml-1">{label}</span>
+    </div>
+  </div>
+);

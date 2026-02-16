@@ -33,7 +33,10 @@ export const ExamCalendarDialog = () => {
     setAdding(false);
 
     if (result) {
-      toast({ title: "Exam Added! 📅", description: `${title} has been added to your calendar.` });
+      toast({
+        title: "Exam Added! 📅",
+        description: `${title} has been added to your calendar.`,
+      });
       setTitle("");
       setExamDate("");
       setExamType("monthly");
@@ -71,15 +74,28 @@ export const ExamCalendarDialog = () => {
           </DialogTitle>
         </DialogHeader>
 
+        {/* Add Exam Form */}
         <form onSubmit={handleAddExam} className="space-y-4 mt-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="title">Exam Title</Label>
-              <Input id="title" placeholder="e.g., Biology Chapter 5" value={title} onChange={(e) => setTitle(e.target.value)} required />
+              <Input
+                id="title"
+                placeholder="e.g., Biology Chapter 5"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="date">Date</Label>
-              <Input id="date" type="date" value={examDate} onChange={(e) => setExamDate(e.target.value)} required />
+              <Input
+                id="date"
+                type="date"
+                value={examDate}
+                onChange={(e) => setExamDate(e.target.value)}
+                required
+              />
             </div>
           </div>
 
@@ -87,7 +103,9 @@ export const ExamCalendarDialog = () => {
             <div className="space-y-2">
               <Label>Exam Type</Label>
               <Select value={examType} onValueChange={(v) => setExamType(v as "monthly" | "midterm" | "final")}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="monthly">Monthly Exam</SelectItem>
                   <SelectItem value="midterm">Midterm Exam</SelectItem>
@@ -98,9 +116,13 @@ export const ExamCalendarDialog = () => {
             <div className="space-y-2">
               <Label>Subject (Optional)</Label>
               <Select value={subject} onValueChange={setSubject}>
-                <SelectTrigger><SelectValue placeholder="Select subject" /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select subject" />
+                </SelectTrigger>
                 <SelectContent>
-                  {subjects.map((s) => (<SelectItem key={s} value={s}>{s}</SelectItem>))}
+                  {subjects.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -112,22 +134,38 @@ export const ExamCalendarDialog = () => {
           </Button>
         </form>
 
+        {/* Exams List */}
         <div className="mt-6 space-y-3">
-          <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">Upcoming Exams</h4>
+          <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">
+            Upcoming Exams
+          </h4>
+          
           {loading ? (
-            <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
+            <div className="flex justify-center py-8">
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+            </div>
           ) : exams.length === 0 ? (
-            <p className="text-center py-8 text-muted-foreground">No exams scheduled. Add your first exam above!</p>
+            <p className="text-center py-8 text-muted-foreground">
+              No exams scheduled. Add your first exam above!
+            </p>
           ) : (
             <div className="space-y-2">
               {exams.map((exam) => {
                 const days = getDaysUntilExam(exam.exam_date);
                 const urgency = getUrgencyLabel(days);
                 const isPast = days < 0;
+
                 return (
-                  <div key={exam.id} className={`flex items-center justify-between p-3 rounded-lg bg-secondary/50 ${isPast ? "opacity-50" : ""}`}>
+                  <div
+                    key={exam.id}
+                    className={`flex items-center justify-between p-3 rounded-lg bg-secondary/50 ${
+                      isPast ? "opacity-50" : ""
+                    }`}
+                  >
                     <div className="flex items-center gap-3">
-                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${getExamTypeColor(exam.exam_type)}`}>{exam.exam_type}</span>
+                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${getExamTypeColor(exam.exam_type)}`}>
+                        {exam.exam_type}
+                      </span>
                       <div>
                         <p className="font-medium">{exam.title}</p>
                         <p className="text-xs text-muted-foreground">
@@ -143,7 +181,12 @@ export const ExamCalendarDialog = () => {
                           {urgency.label}
                         </span>
                       )}
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => deleteExam(exam.id)}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                        onClick={() => deleteExam(exam.id)}
+                      >
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>

@@ -61,7 +61,10 @@ export const AIFlashcardGenerator = ({ onCardsAdded }: AIFlashcardGeneratorProps
       });
 
       if (error) throw error;
-      if (data.error) throw new Error(data.error);
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
 
       const cards = (data.flashcards || []).map((card: { question: string; answer: string }) => ({
         ...card,
@@ -163,6 +166,7 @@ export const AIFlashcardGenerator = ({ onCardsAdded }: AIFlashcardGeneratorProps
         </DialogHeader>
 
         <div className="space-y-5 mt-4">
+          {/* Input Form */}
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="topic">Topic / Lesson Title</Label>
@@ -178,41 +182,67 @@ export const AIFlashcardGenerator = ({ onCardsAdded }: AIFlashcardGeneratorProps
               <div className="space-y-2">
                 <Label>Subject</Label>
                 <Select value={subject} onValueChange={setSubject}>
-                  <SelectTrigger><SelectValue placeholder="Select subject" /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select subject" />
+                  </SelectTrigger>
                   <SelectContent>
-                    {subjects.map((s) => (<SelectItem key={s} value={s}>{s}</SelectItem>))}
+                    {subjects.map((s) => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
+
               <div className="space-y-2">
                 <Label>Grade Level</Label>
                 <Select value={grade} onValueChange={setGrade}>
-                  <SelectTrigger><SelectValue placeholder="Select grade" /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select grade" />
+                  </SelectTrigger>
                   <SelectContent>
-                    {grades.map((g) => (<SelectItem key={g} value={g}>{g}</SelectItem>))}
+                    {grades.map((g) => (
+                      <SelectItem key={g} value={g}>{g}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
+
               <div className="space-y-2">
                 <Label>Number of Cards</Label>
                 <Select value={count.toString()} onValueChange={(v) => setCount(parseInt(v))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
-                    {[3, 5, 8, 10].map((n) => (<SelectItem key={n} value={n.toString()}>{n} cards</SelectItem>))}
+                    {[3, 5, 8, 10].map((n) => (
+                      <SelectItem key={n} value={n.toString()}>{n} cards</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
-            <Button variant="hero" className="w-full" onClick={handleGenerate} disabled={generating || !topic || !subject}>
+            <Button
+              variant="hero"
+              className="w-full"
+              onClick={handleGenerate}
+              disabled={generating || !topic || !subject}
+            >
               {generating ? (
-                <><Loader2 className="w-4 h-4 animate-spin" />Generating with AI...</>
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Generating with AI...
+                </>
               ) : (
-                <><Sparkles className="w-4 h-4" />Generate Flashcards</>
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  Generate Flashcards
+                </>
               )}
             </Button>
           </div>
 
+          {/* Generated Cards */}
           {generatedCards.length > 0 && (
             <div className="space-y-4 pt-4 border-t border-border">
               <div className="flex items-center justify-between">
@@ -222,19 +252,24 @@ export const AIFlashcardGenerator = ({ onCardsAdded }: AIFlashcardGeneratorProps
                   Save Selected
                 </Button>
               </div>
+
               <div className="space-y-3">
                 {generatedCards.map((card, index) => (
                   <div
                     key={index}
                     onClick={() => toggleCard(index)}
                     className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                      card.selected ? "border-primary bg-primary/5" : "border-border bg-secondary/30 opacity-60"
+                      card.selected
+                        ? "border-primary bg-primary/5"
+                        : "border-border bg-secondary/30 opacity-60"
                     }`}
                   >
                     <div className="flex items-start gap-3">
-                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 ${
-                        card.selected ? "bg-primary border-primary" : "border-muted-foreground"
-                      }`}>
+                      <div
+                        className={`w-5 h-5 rounded border-2 flex items-center justify-center shrink-0 mt-0.5 ${
+                          card.selected ? "bg-primary border-primary" : "border-muted-foreground"
+                        }`}
+                      >
                         {card.selected && <Check className="w-3 h-3 text-primary-foreground" />}
                       </div>
                       <div className="flex-1 space-y-2">

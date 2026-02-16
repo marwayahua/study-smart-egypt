@@ -11,14 +11,17 @@ import { ArrowLeft, Play, BookOpen, Trophy, Clock, AlertTriangle, PenLine, Eye }
 import { useFlashcards } from "@/hooks/useFlashcards";
 import { useUserStats } from "@/hooks/useUserStats";
 import { useExamDates } from "@/hooks/useExamDates";
+import { useAuth } from "@/hooks/useAuth";
 
 type ReviewMode = "show" | "write";
 
 interface DashboardProps {
   onBack: () => void;
+  onAuthClick: () => void;
 }
 
-export const Dashboard = ({ onBack }: DashboardProps) => {
+export const Dashboard = ({ onBack, onAuthClick }: DashboardProps) => {
+  const { user } = useAuth();
   const { cards, addCard, updateCardAfterReview, getDueCards, loading: cardsLoading, refetch: refetchCards } = useFlashcards();
   const { stats, updateStatsAfterReview, getRetentionRate } = useUserStats();
   const { getUpcomingExams, getIntensiveReviewMultiplier } = useExamDates();
@@ -53,42 +56,64 @@ export const Dashboard = ({ onBack }: DashboardProps) => {
     }
   };
 
+  // Mode selection screen
   if (showModeSelection && dueCards.length > 0) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar streak={streak} />
+        <Navbar streak={streak} onAuthClick={onAuthClick} />
         <main className="pt-24 pb-12 px-4">
           <div className="container mx-auto max-w-2xl">
             <Button variant="ghost" onClick={() => setShowModeSelection(false)} className="mb-6 gap-2">
               <ArrowLeft className="w-4 h-4" />
               Back
             </Button>
+            
             <div className="text-center mb-8">
               <h2 className="text-2xl font-bold mb-2">Choose Review Mode</h2>
               <p className="text-muted-foreground">How would you like to practice today?</p>
             </div>
+            
             <div className="grid md:grid-cols-2 gap-4">
-              <Card variant="interactive" className="cursor-pointer p-6 text-center hover:border-primary transition-colors"
-                onClick={() => { setReviewMode("write"); setShowModeSelection(false); setIsReviewing(true); }}>
+              <Card 
+                variant="interactive" 
+                className="cursor-pointer p-6 text-center hover:border-primary transition-colors"
+                onClick={() => {
+                  setReviewMode("write");
+                  setShowModeSelection(false);
+                  setIsReviewing(true);
+                }}
+              >
                 <div className="flex flex-col items-center gap-4">
                   <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
                     <PenLine className="w-8 h-8 text-primary" />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold mb-1">Write Answer</h3>
-                    <p className="text-sm text-muted-foreground">Type your answer first, then compare with the correct one.</p>
+                    <p className="text-sm text-muted-foreground">
+                      Type your answer first, then compare with the correct one. Best for active recall practice.
+                    </p>
                   </div>
                 </div>
               </Card>
-              <Card variant="interactive" className="cursor-pointer p-6 text-center hover:border-primary transition-colors"
-                onClick={() => { setReviewMode("show"); setShowModeSelection(false); setIsReviewing(true); }}>
+              
+              <Card 
+                variant="interactive" 
+                className="cursor-pointer p-6 text-center hover:border-primary transition-colors"
+                onClick={() => {
+                  setReviewMode("show");
+                  setShowModeSelection(false);
+                  setIsReviewing(true);
+                }}
+              >
                 <div className="flex flex-col items-center gap-4">
                   <div className="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center">
                     <Eye className="w-8 h-8 text-accent" />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold mb-1">Show Answer</h3>
-                    <p className="text-sm text-muted-foreground">Tap to reveal the answer, then rate your recall.</p>
+                    <p className="text-sm text-muted-foreground">
+                      Tap to reveal the answer, then rate your recall. Classic flashcard experience.
+                    </p>
                   </div>
                 </div>
               </Card>
@@ -102,7 +127,7 @@ export const Dashboard = ({ onBack }: DashboardProps) => {
   if (isReviewing && dueCards.length > 0) {
     return (
       <div className="min-h-screen bg-background">
-        <Navbar streak={streak} />
+        <Navbar streak={streak} onAuthClick={onAuthClick} />
         <main className="pt-24 pb-12 px-4">
           <div className="container mx-auto max-w-4xl">
             <div className="mb-8">
@@ -121,8 +146,10 @@ export const Dashboard = ({ onBack }: DashboardProps) => {
                 </div>
               </div>
               <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                <div className="h-full hero-gradient transition-all duration-300"
-                  style={{ width: `${((currentCardIndex + 1) / dueCards.length) * 100}%` }} />
+                <div
+                  className="h-full hero-gradient transition-all duration-300"
+                  style={{ width: `${((currentCardIndex + 1) / dueCards.length) * 100}%` }}
+                />
               </div>
             </div>
             <FlashcardReview card={dueCards[currentCardIndex]} onRate={handleRate} mode={reviewMode} />
@@ -134,7 +161,7 @@ export const Dashboard = ({ onBack }: DashboardProps) => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar streak={streak} />
+      <Navbar streak={streak} onAuthClick={onAuthClick} />
       <main className="pt-24 pb-12 px-4">
         <div className="container mx-auto max-w-6xl space-y-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -153,6 +180,7 @@ export const Dashboard = ({ onBack }: DashboardProps) => {
             </div>
           </div>
 
+          {/* Exam Alert */}
           {upcomingExams.length > 0 && (
             <div className="flex items-center gap-3 p-4 rounded-lg bg-warning/10 border border-warning/20">
               <AlertTriangle className="w-5 h-5 text-warning shrink-0" />
@@ -180,9 +208,9 @@ export const Dashboard = ({ onBack }: DashboardProps) => {
                 <p className="text-muted-foreground">
                   You have <span className="font-bold text-foreground">{dueCards.length} cards</span> ready for review.
                 </p>
-                <Button variant="hero" className="w-full" onClick={() => setShowModeSelection(true)} disabled={dueCards.length === 0}>
+                <Button variant="hero" className="w-full" onClick={() => setShowModeSelection(true)} disabled={dueCards.length === 0 || !user}>
                   <Play className="w-4 h-4" />
-                  Start Review Session
+                  {user ? "Start Review Session" : "Sign in to Review"}
                 </Button>
               </CardContent>
             </Card>
@@ -226,7 +254,7 @@ export const Dashboard = ({ onBack }: DashboardProps) => {
                 <div className="text-center py-12 text-muted-foreground">
                   <BookOpen className="w-12 h-12 mx-auto mb-4 opacity-50" />
                   <p className="text-lg font-medium">No cards yet</p>
-                  <p className="text-sm">Add your first knowledge card to get started!</p>
+                  <p className="text-sm">{user ? "Add your first knowledge card to get started!" : "Sign in to add cards"}</p>
                 </div>
               ) : (
                 <div className="grid gap-3">

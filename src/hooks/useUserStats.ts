@@ -51,17 +51,20 @@ export const useUserStats = () => {
     let newStreak = stats.current_streak;
     
     if (!lastReview) {
+      // First review ever
       newStreak = 1;
     } else if (lastReview === today) {
-      // Already reviewed today
+      // Already reviewed today, keep streak
     } else {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
       const yesterdayStr = yesterday.toISOString().split("T")[0];
       
       if (lastReview === yesterdayStr) {
+        // Reviewed yesterday, increment streak
         newStreak = stats.current_streak + 1;
       } else {
+        // Missed a day, reset streak
         newStreak = 1;
       }
     }

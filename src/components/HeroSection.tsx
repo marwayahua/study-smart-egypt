@@ -1,9 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { Calendar, TrendingUp, Clock, Sparkles, ArrowRight, ChevronDown, Zap } from "lucide-react";
-import { AuthDialog } from "@/components/AuthDialog";
+import { Brain, Zap, Calendar, TrendingUp, Clock, Sparkles, ArrowRight, ChevronDown } from "lucide-react";
 import heroIllustration from "@/assets/hero-illustration.png";
 
-export const HeroSection = () => {
+interface HeroSectionProps {
+  onGetStarted: () => void;
+}
+
+export const HeroSection = ({ onGetStarted }: HeroSectionProps) => {
   const scrollToFeatures = () => {
     const featuresSection = document.getElementById("features-section");
     if (featuresSection) {
@@ -13,6 +16,7 @@ export const HeroSection = () => {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse-soft" />
         <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-accent/10 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: "1s" }} />
@@ -20,37 +24,38 @@ export const HeroSection = () => {
 
       <div className="container mx-auto px-4 pt-20 pb-12 relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Left - Content */}
           <div className="text-center lg:text-left space-y-6 animate-slide-up">
+            {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent border border-accent/20">
               <Sparkles className="w-4 h-4" />
               <span className="text-sm font-semibold">Smart Study for Egyptian Students</span>
             </div>
 
+            {/* Headline */}
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight">
               Study Less,{" "}
               <span className="gradient-text">Remember More</span>
             </h1>
 
+            {/* Subheadline */}
             <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0">
               Master your curriculum with spaced repetition science. Stop cramming, start retaining — 
               achieve up to <span className="font-bold text-primary">95% memory retention</span> for exams.
             </p>
 
+            {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
-              <AuthDialog
-                defaultMode="signup"
-                trigger={
-                  <Button variant="hero" size="xl" className="group">
-                    Start Learning Free
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                }
-              />
+              <Button variant="hero" size="xl" onClick={onGetStarted} className="group">
+                Start Learning Free
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Button>
               <Button variant="outline" size="xl" onClick={scrollToFeatures}>
                 See How It Works
               </Button>
             </div>
 
+            {/* Stats */}
             <div className="flex flex-wrap gap-6 justify-center lg:justify-start pt-6">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Clock className="w-5 h-5 text-primary" />
@@ -67,9 +72,15 @@ export const HeroSection = () => {
             </div>
           </div>
 
+          {/* Right - Illustration */}
           <div className="relative animate-scale-in" style={{ animationDelay: "0.2s" }}>
             <div className="relative">
-              <img src={heroIllustration} alt="Smart Egyptian Study Assistant" className="w-full h-auto rounded-2xl shadow-2xl animate-float" />
+              <img
+                src={heroIllustration}
+                alt="Smart Egyptian Study Assistant"
+                className="w-full h-auto rounded-2xl shadow-2xl animate-float"
+              />
+              {/* Floating Cards */}
               <div className="absolute -top-4 -left-4 bg-card rounded-xl p-4 shadow-lg animate-bounce-soft">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-lg bg-success/20 flex items-center justify-center">
@@ -96,6 +107,7 @@ export const HeroSection = () => {
           </div>
         </div>
 
+        {/* Scroll Indicator */}
         <button
           onClick={scrollToFeatures}
           className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-muted-foreground animate-bounce-soft cursor-pointer hover:text-primary transition-colors"

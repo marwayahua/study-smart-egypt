@@ -7,8 +7,15 @@ import { Label } from "@/components/ui/label";
 import { Plus, BookOpen, Sparkles } from "lucide-react";
 
 const defaultSubjects = [
-  "Biology", "Chemistry", "Physics", "Mathematics",
-  "Arabic", "English", "History", "Geography", "Other",
+  "Biology",
+  "Chemistry", 
+  "Physics",
+  "Mathematics",
+  "Arabic",
+  "English",
+  "History",
+  "Geography",
+  "Other",
 ];
 
 interface AddKnowledgeDialogProps {
@@ -66,6 +73,7 @@ export const AddKnowledgeDialog = ({ onAdd }: AddKnowledgeDialogProps) => {
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-5 mt-4">
+          {/* Subject Selection */}
           <div className="space-y-2">
             <Label className="text-sm font-medium">Subject</Label>
             <div className="flex flex-wrap gap-2">
@@ -84,6 +92,8 @@ export const AddKnowledgeDialog = ({ onAdd }: AddKnowledgeDialogProps) => {
                 </button>
               ))}
             </div>
+            
+            {/* Custom Subject Input */}
             {showCustomInput && (
               <Input
                 placeholder="Enter your custom subject..."
@@ -95,8 +105,11 @@ export const AddKnowledgeDialog = ({ onAdd }: AddKnowledgeDialogProps) => {
             )}
           </div>
 
+          {/* Question */}
           <div className="space-y-2">
-            <Label htmlFor="question" className="text-sm font-medium">Question / What to Remember</Label>
+            <Label htmlFor="question" className="text-sm font-medium">
+              Question / What to Remember
+            </Label>
             <Textarea
               id="question"
               placeholder="e.g., What are the main organs of the digestive system?"
@@ -106,8 +119,11 @@ export const AddKnowledgeDialog = ({ onAdd }: AddKnowledgeDialogProps) => {
             />
           </div>
 
+          {/* Answer */}
           <div className="space-y-2">
-            <Label htmlFor="answer" className="text-sm font-medium">Answer / Correct Response</Label>
+            <Label htmlFor="answer" className="text-sm font-medium">
+              Answer / Correct Response
+            </Label>
             <Textarea
               id="answer"
               placeholder="e.g., Mouth, Esophagus, Stomach, Small Intestine, Large Intestine"
@@ -117,6 +133,7 @@ export const AddKnowledgeDialog = ({ onAdd }: AddKnowledgeDialogProps) => {
             />
           </div>
 
+          {/* Submit */}
           <div className="flex gap-3 pt-2">
             <Button type="button" variant="secondary" className="flex-1" onClick={() => setOpen(false)}>
               Cancel

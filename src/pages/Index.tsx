@@ -1,25 +1,33 @@
+import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { HeroSection } from "@/components/HeroSection";
 import { FeaturesSection } from "@/components/FeaturesSection";
+import { Dashboard } from "@/components/Dashboard";
+import { AuthDialog } from "@/components/AuthDialog";
 import { useAuth } from "@/hooks/useAuth";
-import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
 
 const Index = () => {
-  const { user, loading } = useAuth();
-  const navigate = useNavigate();
+  const [showDashboard, setShowDashboard] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
+  const { user } = useAuth();
 
-  useEffect(() => {
-    if (!loading && user) {
-      navigate("/dashboard", { replace: true });
+  const handleGetStarted = () => {
+    if (user) {
+      setShowDashboard(true);
+    } else {
+      setAuthOpen(true);
     }
-  }, [user, loading, navigate]);
+  };
+
+  if (showDashboard) {
+    return <Dashboard onBack={() => setShowDashboard(false)} onAuthClick={() => setAuthOpen(true)} />;
+  }
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      <Navbar onAuthClick={() => setAuthOpen(true)} />
       <main>
-        <HeroSection />
+        <HeroSection onGetStarted={handleGetStarted} />
         <FeaturesSection />
         
         <footer className="py-12 border-t border-border">
@@ -30,6 +38,8 @@ const Index = () => {
           </div>
         </footer>
       </main>
+      
+      <AuthDialog open={authOpen} onOpenChange={setAuthOpen} />
     </div>
   );
 };
