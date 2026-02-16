@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useRef, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 
@@ -22,6 +22,7 @@ const arAuthErrors: Record<string, string> = {
   "Unable to validate email address: invalid format": "صيغة البريد الإلكتروني غير صحيحة",
   "Email rate limit exceeded": "تم تجاوز الحد المسموح، حاول لاحقاً",
   "For security purposes, you can only request this after": "لأسباب أمنية، يرجى المحاولة لاحقاً",
+  "Request rate limit reached": "تم تجاوز الحد المسموح، حاول لاحقاً",
 };
 
 function translateError(msg: string): string {
@@ -35,23 +36,37 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const initializedRef = useRef(false);
 
   useEffect(() => {
-    // Listen for auth changes FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    // Prevent double-initialization (React StrictMode or fast re-mounts)
+    if (initializedRef.current) return;
+    initializedRef.current = true;
+
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, currentSession) => {
+        // Use setTimeout to avoid state updates during render and prevent
+        // cascading re-renders that trigger multiple token refreshes
+        setTimeout(() => {
+          setSession(currentSession);
+          setUser(currentSession?.user ?? null);
+          setLoading(false);
+        }, 0);
+      }
+    );
+
+    // Then check for existing session
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      setSession(currentSession);
+      setUser(currentSession?.user ?? null);
       setLoading(false);
     });
 
-    // Then check existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      initializedRef.current = false;
+    };
   }, []);
 
   const signUp = useCallback(async (email: string, password: string, displayName?: string) => {
