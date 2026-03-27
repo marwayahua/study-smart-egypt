@@ -259,9 +259,9 @@ export const Dashboard = ({ onBack, onAuthClick }: DashboardProps) => {
               ) : (
                 <div className="grid gap-3">
                   {cards.slice(0, 10).map((card) => (
-                    <div key={card.id} className="flex items-center gap-4 p-4 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors">
-                      <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">{card.subject}</span>
-                      <p className="flex-1 truncate font-medium">{card.question}</p>
+                    <div key={card.id} className="flex items-start gap-4 p-4 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors overflow-hidden">
+                      <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium shrink-0">{card.subject}</span>
+                      <p className="flex-1 font-medium break-words min-w-0">{card.question}</p>
                     </div>
                   ))}
                   {cards.length > 10 && <p className="text-center text-sm text-muted-foreground">And {cards.length - 10} more cards...</p>}
