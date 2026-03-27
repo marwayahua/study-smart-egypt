@@ -56,53 +56,42 @@ export const FlashcardReview = ({ card, onRate, mode }: FlashcardReviewProps) =>
 
       {/* Flashcard */}
       <div
-        className={`relative w-full h-80 ${mode === "show" ? "cursor-pointer" : ""} perspective-1000`}
+        className={`relative w-full min-h-80 ${mode === "show" ? "cursor-pointer" : ""}`}
         onClick={handleFlip}
         style={{ perspective: "1000px" }}
       >
-        <div
-          className={`absolute inset-0 transition-transform duration-500 preserve-3d ${
-            isFlipped ? "rotate-y-180" : ""
-          }`}
-          style={{
-            transformStyle: "preserve-3d",
-            transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
-          }}
-        >
-          {/* Front - Question */}
+        {/* Front - Question */}
+        {!isFlipped && (
           <Card
             variant="elevated"
-            className="absolute inset-0 flex flex-col items-center justify-center p-8 backface-hidden"
-            style={{ backfaceVisibility: "hidden" }}
+            className="w-full flex flex-col items-center justify-center p-8 min-h-80"
           >
             <p className="text-xs uppercase tracking-wider text-muted-foreground mb-4">Question</p>
-            <p className="text-2xl font-semibold text-center leading-relaxed">{card.question}</p>
+            <p className="text-2xl font-semibold text-center leading-relaxed break-words w-full">{card.question}</p>
             {mode === "show" && (
               <p className="text-sm text-muted-foreground mt-6">Tap to reveal answer</p>
             )}
           </Card>
+        )}
 
-          {/* Back - Answer */}
+        {/* Back - Answer */}
+        {isFlipped && (
           <Card
             variant="elevated"
-            className="absolute inset-0 flex flex-col items-center justify-center p-8 bg-primary/5"
-            style={{
-              backfaceVisibility: "hidden",
-              transform: "rotateY(180deg)",
-            }}
+            className="w-full flex flex-col items-center justify-center p-8 bg-primary/5 min-h-80 card-flip-enter"
           >
             <p className="text-xs uppercase tracking-wider text-primary mb-4">Correct Answer</p>
-            <p className="text-2xl font-semibold text-center leading-relaxed">{card.answer}</p>
+            <p className="text-2xl font-semibold text-center leading-relaxed break-words w-full">{card.answer}</p>
             {mode === "write" && hasSubmitted && (
               <div className="mt-6 w-full max-w-md">
                 <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Your Answer</p>
                 <div className="p-3 rounded-lg bg-secondary/50 text-center">
-                  <p className="text-lg">{userAnswer}</p>
+                  <p className="text-lg break-words">{userAnswer}</p>
                 </div>
               </div>
             )}
           </Card>
-        </div>
+        )}
       </div>
 
       {/* Write Answer Input (only in write mode before submission) */}
